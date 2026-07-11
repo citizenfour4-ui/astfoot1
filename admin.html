@@ -45,12 +45,15 @@
 </div>
 
 <script>
+    // كلمة المرور السرية للمنظم
     const ADMIN_PASSWORD = "Tesla2026_Admin"; 
     
+    // إعدادات الاتصال بـ Supabase
     const SUPABASE_URL = "https://yiunltkwjhrkbnrybtby.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_76cDS0ynvnqNag6welW0iw_rkQ4v";
     
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // إنشاء الاتصال مرة واحدة فقط لتجنب الخطأ
+    const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function checkPassword() {
         const pass = document.getElementById('password').value;
@@ -67,14 +70,14 @@
         const tableBody = document.getElementById('participantsTable');
         tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري تحميل قائمة الأسماء...</td></tr>';
 
-        // تم التعديل هنا ليتعامل مع جدول ast وترتيب التاريخ حسب عمود id
-        const { data: participants, error } = await supabase
+        // قراءة البيانات من جدول ast
+        const { data: participants, error } = await clientSupabase
             .from('ast')
             .select('*')
             .order('id', { ascending: true });
 
         if (error) {
-            alert("فشل في جلب البيانات من السحابة! تأكد من تفعيل سياسة RLS العامة في الـ Select.");
+            alert("فشل في جلب البيانات من السحابة!");
             console.error(error);
             return;
         }
@@ -83,7 +86,6 @@
         tableBody.innerHTML = '';
         
         participants.forEach((p, index) => {
-            // التعامل مع عمود التاريخ المسمى id
             const dateFormatted = p.id ? new Date(p.id).toLocaleDateString('ar-EG') : 'غير متوفر';
             let row = `<tr>
                 <td>${index + 1}</td>
