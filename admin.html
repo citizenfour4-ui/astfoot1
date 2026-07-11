@@ -39,7 +39,7 @@
 </div>
 
 <div class="container login-box" id="loginBox">
-    <h2>الرجاء إدخل كلمة مرور المنظم لرؤية الأسماء</h2>
+    <h2>الرجاء إدخال كلمة مرور المنظم لرؤية الأسماء</h2>
     <input type="password" id="password" placeholder="كلمة المرور">
     <button class="btn" onclick="checkPassword()">دخول</button>
 </div>
@@ -67,13 +67,14 @@
         const tableBody = document.getElementById('participantsTable');
         tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري تحميل قائمة الأسماء...</td></tr>';
 
+        // تم التعديل هنا ليتعامل مع جدول ast وترتيب التاريخ حسب عمود id
         const { data: participants, error } = await supabase
-            .from('participants')
+            .from('ast')
             .select('*')
-            .order('created_at', { ascending: true });
+            .order('id', { ascending: true });
 
         if (error) {
-            alert("فشل في جلب البيانات من السحابة!");
+            alert("فشل في جلب البيانات من السحابة! تأكد من تفعيل سياسة RLS العامة في الـ Select.");
             console.error(error);
             return;
         }
@@ -82,7 +83,8 @@
         tableBody.innerHTML = '';
         
         participants.forEach((p, index) => {
-            const dateFormatted = new Date(p.created_at).toLocaleString('ar-EG');
+            // التعامل مع عمود التاريخ المسمى id
+            const dateFormatted = p.id ? new Date(p.id).toLocaleDateString('ar-EG') : 'غير متوفر';
             let row = `<tr>
                 <td>${index + 1}</td>
                 <td>${p.name}</td>
